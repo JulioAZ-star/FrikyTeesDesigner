@@ -414,7 +414,7 @@ ProductDefinition
 - constraints
 ```
 
-### `variants[]`
+#### `variants[]`
 
 - color
 - talla
@@ -423,7 +423,7 @@ ProductDefinition
 - SKU
 - precio base
 
-### `surfaces[]`
+#### `surfaces[]`
 
 Cada producto puede tener varias caras:
 
@@ -445,7 +445,7 @@ SurfaceDefinition
 - guides[]
 ```
 
-### `printAreas[]`
+#### `printAreas[]`
 
 ```ts
 PrintAreaDefinition
@@ -480,7 +480,7 @@ DesignDocument
 - updatedAt
 ```
 
-### `surfaces[]` del documento
+#### `surfaces[]` del documento
 
 ```ts
 DesignSurfaceState
@@ -508,7 +508,7 @@ LayerNode
 - printAreaId
 ```
 
-### Capa de imagen
+#### Capa de imagen
 
 ```ts
 ImageLayer
@@ -520,7 +520,7 @@ ImageLayer
 - filters
 ```
 
-### Capa de texto
+#### Capa de texto
 
 ```ts
 TextLayer
