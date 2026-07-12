@@ -216,7 +216,7 @@ Responsable de:
 
 ## 5. Módulos funcionales del producto
 
-## 5.1 Catálogo de productos
+### 5.1 Catálogo de productos
 
 Funciones:
 
@@ -227,7 +227,7 @@ Funciones:
 
 Debe funcionar sobre definiciones configurables, no hardcodeadas.
 
-## 5.2 Editor de documento
+### 5.2 Editor de documento
 
 Funciones:
 
@@ -236,7 +236,7 @@ Funciones:
 - gestionar selección, edición y orden de capas;
 - aplicar límites y reglas del producto.
 
-## 5.3 Capas y objetos
+### 5.3 Capas y objetos
 
 Tipos previstos:
 
@@ -256,7 +256,7 @@ Capacidades:
 - reordenar;
 - agrupar.
 
-## 5.4 Tipografía
+### 5.4 Tipografía
 
 Funciones:
 
@@ -264,7 +264,7 @@ Funciones:
 - editar contenido, fuente, tamaño, color, alineación, interlineado;
 - curvado o estilos avanzados en una fase futura.
 
-## 5.5 Imágenes y activos
+### 5.5 Imágenes y activos
 
 Funciones:
 
@@ -275,7 +275,7 @@ Funciones:
 - reemplazo;
 - persistencia de activos.
 
-## 5.6 Guías, reglas y snapping
+### 5.6 Guías, reglas y snapping
 
 Funciones:
 
@@ -284,7 +284,7 @@ Funciones:
 - guías automáticas por centros, bordes y print areas;
 - imanes configurables.
 
-## 5.7 Historial
+### 5.7 Historial
 
 Basado en patrón comando:
 
@@ -292,7 +292,7 @@ Basado en patrón comando:
 - el historial guarda `undo` y `redo`;
 - permite trazabilidad y futuras analíticas de uso.
 
-## 5.8 Exportación
+### 5.8 Exportación
 
 Dos salidas principales:
 
@@ -346,7 +346,7 @@ UI -> Editor Engine -> Domain Model
 
 ## 7. Flujo de la aplicación
 
-## 7.1 Flujo principal de edición
+### 7.1 Flujo principal de edición
 
 ```text
 1. El usuario abre el editor
@@ -361,7 +361,7 @@ UI -> Editor Engine -> Domain Model
 10. El sistema genera archivos y metadatos
 ```
 
-## 7.2 Flujo de carga de producto
+### 7.2 Flujo de carga de producto
 
 ```text
 Product ID / SKU
@@ -373,7 +373,7 @@ Product ID / SKU
   -> Inicialización del DesignDocument
 ```
 
-## 7.3 Flujo de exportación
+### 7.3 Flujo de exportación
 
 ```text
 DesignDocument
@@ -384,7 +384,7 @@ DesignDocument
   -> Descarga / envío al backend / almacenamiento
 ```
 
-## 7.4 Flujo de integración futura con Wix
+### 7.4 Flujo de integración futura con Wix
 
 ```text
 Wix page/app
@@ -399,7 +399,7 @@ Wix page/app
 
 ## 8. Modelo de datos
 
-## 8.1 Producto
+### 8.1 Producto
 
 ```ts
 ProductDefinition
@@ -465,7 +465,7 @@ PrintAreaDefinition
 
 Esto permite modelar fácilmente camisetas, tazas, gorras o posters sin cambiar el motor.
 
-## 8.2 Documento de diseño
+### 8.2 Documento de diseño
 
 ```ts
 DesignDocument
@@ -490,7 +490,7 @@ DesignSurfaceState
 - viewport
 ```
 
-## 8.3 Capas
+### 8.3 Capas
 
 ```ts
 LayerNode
@@ -535,7 +535,7 @@ TextLayer
 - stroke
 ```
 
-## 8.4 Historial
+### 8.4 Historial
 
 ```ts
 EditorHistory
@@ -550,7 +550,7 @@ Cada item guarda:
 - timestamps;
 - contexto de superficie.
 
-## 8.5 Exportación
+### 8.5 Exportación
 
 ```ts
 ExportJob
@@ -595,7 +595,7 @@ El motor no debe saber “qué es una camiseta”; solo debe saber interpretar s
 
 ## 10. Escalabilidad futura
 
-## 10.1 Escalabilidad funcional
+### 10.1 Escalabilidad funcional
 
 La arquitectura permite añadir:
 
@@ -605,7 +605,7 @@ La arquitectura permite añadir:
 - nuevas salidas de exportación;
 - precios dinámicos y reglas comerciales.
 
-## 10.2 Escalabilidad técnica
+### 10.2 Escalabilidad técnica
 
 Separando frontend, motor, catálogo y exportación se podrá:
 
@@ -615,7 +615,7 @@ Separando frontend, motor, catálogo y exportación se podrá:
 - medir rendimiento de operaciones pesadas;
 - evolucionar el renderer en el futuro si Konva dejara de ser suficiente.
 
-## 10.3 Escalabilidad organizativa
+### 10.3 Escalabilidad organizativa
 
 Los equipos podrán trabajar por áreas:
 
@@ -628,7 +628,7 @@ Los equipos podrán trabajar por áreas:
 
 ## 11. Fases recomendadas de evolución
 
-## Fase 1: Base sólida del editor
+### Fase 1: Base sólida del editor
 
 - TypeScript;
 - estructura modular;
@@ -638,7 +638,7 @@ Los equipos podrán trabajar por áreas:
 - varias caras;
 - varias zonas imprimibles.
 
-## Fase 2: Herramientas profesionales
+### Fase 2: Herramientas profesionales
 
 - bloqueo;
 - duplicado;
@@ -648,7 +648,7 @@ Los equipos podrán trabajar por áreas:
 - panel de capas;
 - zoom avanzado.
 
-## Fase 3: Producción e integración
+### Fase 3: Producción e integración
 
 - exportación técnica;
 - guardado de sesiones;
@@ -656,7 +656,7 @@ Los equipos podrán trabajar por áreas:
 - API;
 - integración Wix.
 
-## Fase 4: Escala de negocio
+### Fase 4: Escala de negocio
 
 - backoffice de productos;
 - pricing engine;
