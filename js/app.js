@@ -42,7 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
     `;
 
-    initCanvas();
-    initImageManager();
+   initCanvas();
+initImageManager();
+initTextManager();
+
+function prueba() {
+
+}
 
 });

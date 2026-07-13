@@ -2,25 +2,137 @@
 <html lang="es">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Friky+Tees Designer</title>
 
+    <link rel="stylesheet" href="css/style.css">
+
     <script src="https://cdn.jsdelivr.net/npm/konva@9/konva.min.js"></script>
 
-    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-    <div id="app"></div>
+<div class="designer">
 
-    <input type="file" id="imageLoader" accept="image/*" style="display:none;">
+    <!-- PANEL IZQUIERDO -->
 
-    <script src="js/config.js"></script>
+    <aside class="left-panel">
+
+        <h2>Producto</h2>
+
+        <div class="section">
+
+            <label>Modelo</label>
+
+            <select id="product">
+
+                <option>Camiseta personalizada</option>
+
+            </select>
+
+        </div>
+
+        <div class="section">
+
+            <label>Color</label>
+
+            <button id="whiteBtn">Blanco</button>
+            <button id="blackBtn">Negro</button>
+
+        </div>
+
+        <div class="section">
+
+            <label>Talla</label>
+
+            <select id="size">
+
+                <option>S</option>
+                <option>M</option>
+                <option selected>L</option>
+                <option>XL</option>
+                <option>XXL</option>
+
+            </select>
+
+        </div>
+
+    </aside>
+
+    <!-- CENTRO -->
+
+    <main class="workspace">
+
+        <div id="canvas"></div>
+
+    </main>
+
+    <!-- PANEL DERECHO -->
+
+    <aside class="right-panel">
+
+        <h2>Herramientas</h2>
+
+        <button id="addImage">
+            Añadir imagen
+        </button>
+
+        <button id="addText">
+            Añadir texto
+        </button>
+
+        <hr>
+
+        <div id="properties">
+
+            <p>
+                Selecciona un objeto
+            </p>
+
+        </div>
+
+    </aside>
+
+</div>
+
+<footer>
+
+    <button id="frontView">
+
+        Frontal
+
+    </button>
+
+    <button id="backView">
+
+        Espalda
+
+    </button>
+
+    <button id="addCart">
+
+        Añadir al carrito
+
+    </button>
+
+</footer>
+
+<input
+        type="file"
+        id="imageLoader"
+        accept="image/*"
+        hidden>
+
+<script src="js/config.js"></script>
 <script src="js/canvas.js"></script>
 <script src="js/imageManager.js"></script>
+<script src="js/textManager.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/app.js"></script>
 
