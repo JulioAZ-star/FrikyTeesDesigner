@@ -1,0 +1,222 @@
+{
+  "products": [
+    {
+      "id": "camiseta-personalizada",
+      "name": "Camiseta personalizada",
+      "colors": [
+        {
+          "name": "Blanco",
+          "value": "#ffffff"
+        },
+        {
+          "name": "Negro",
+          "value": "#121212"
+        }
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "mockup": {
+        "srcByColor": {
+          "#ffffff": "assets/products/camiseta-personalizada/preview/front-white.png",
+          "#121212": "assets/products/camiseta-personalizada/preview/front-black.png"
+        },
+        "x": 120,
+        "y": 70,
+        "width": 520,
+        "height": 700,
+        "cornerRadius": 30,
+        "stroke": "#d0d0d0",
+        "fill": "#ffffff"
+      },
+      "printArea": {
+        "x": 286,
+        "y": 247,
+        "width": 194,
+        "height": 340,
+        "stroke": "#4a4a4a",
+        "dash": [
+          10,
+          8
+        ]
+      },
+      "faces": [
+        {
+          "id": "front",
+          "name": "Frontal",
+          "mockup": {
+            "srcByColor": {
+              "#ffffff": "assets/products/camiseta-personalizada/preview/front-white.png",
+              "#121212": "assets/products/camiseta-personalizada/preview/front-black.png"
+            },
+            "x": 120,
+            "y": 70,
+            "width": 520,
+            "height": 700,
+            "cornerRadius": 30,
+            "stroke": "#d0d0d0",
+            "fill": "#ffffff"
+          },
+          "printArea": {
+            "x": 286,
+            "y": 247,
+            "width": 194,
+            "height": 340,
+            "stroke": "#4a4a4a",
+            "dash": [
+              10,
+              8
+            ]
+          }
+        },
+        {
+          "id": "back",
+          "name": "Espalda",
+          "mockup": {
+            "srcByColor": {
+              "#ffffff": "assets/products/camiseta-personalizada/preview/back-white.png",
+              "#121212": "assets/products/camiseta-personalizada/preview/back-black.png"
+            },
+            "x": 120,
+            "y": 70,
+            "width": 520,
+            "height": 700,
+            "cornerRadius": 30,
+            "stroke": "#d0d0d0",
+            "fill": "#ffffff"
+          },
+          "printArea": {
+            "x": 282,
+            "y": 234,
+            "width": 179,
+            "height": 372,
+            "stroke": "#4a4a4a",
+            "dash": [
+              10,
+              8
+            ]
+          }
+        }
+      ],
+      "defaultFace": "front",
+      "defaultColor": "#ffffff",
+      "defaultSize": "L"
+    },
+    {
+      "id": "sudadera-urbana",
+      "name": "Sudaderas Proximamente",
+      "disabled": true,
+      "colors": [],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "mockup": {
+        "src": "assets/products/sudadera-urbana/preview/front.png",
+        "x": 100,
+        "y": 50,
+        "width": 560,
+        "height": 740,
+        "cornerRadius": 42,
+        "stroke": "#c8d0dc",
+        "fill": "#e6e8ed"
+      },
+      "printArea": {
+        "x": 255,
+        "y": 253,
+        "width": 251,
+        "height": 358,
+        "stroke": "#4a4a4a",
+        "dash": [
+          12,
+          8
+        ]
+      },
+      "faces": [
+        {
+          "id": "front",
+          "name": "Frontal",
+          "mockup": {
+            "src": "assets/products/sudadera-urbana/preview/front.png",
+            "x": 100,
+            "y": 50,
+            "width": 560,
+            "height": 740,
+            "cornerRadius": 42,
+            "stroke": "#c8d0dc",
+            "fill": "#e6e8ed"
+          },
+          "printArea": {
+            "x": 257,
+            "y": 250,
+            "width": 249,
+            "height": 251,
+            "stroke": "#4a4a4a",
+            "dash": [
+              12,
+              8
+            ]
+          }
+        },
+        {
+          "id": "back",
+          "name": "Espalda",
+          "mockup": {
+            "src": "assets/products/sudadera-urbana/preview/back.png",
+            "x": 100,
+            "y": 50,
+            "width": 560,
+            "height": 740,
+            "cornerRadius": 42,
+            "stroke": "#c8d0dc",
+            "fill": "#e6e8ed"
+          },
+          "printArea": {
+            "x": 255,
+            "y": 253,
+            "width": 251,
+            "height": 358,
+            "stroke": "#4a4a4a",
+            "dash": [
+              12,
+              8
+            ]
+          }
+        }
+      ],
+      "defaultFace": "front",
+      "defaultColor": null,
+      "defaultSize": "L"
+    },
+    {
+      "id": "tazas-proximamente",
+      "name": "Tazas Proximamente",
+      "disabled": true,
+      "colors": [],
+      "sizes": [],
+      "faces": []
+    },
+    {
+      "id": "botellas-proximamente",
+      "name": "Botellas Proximamente",
+      "disabled": true,
+      "colors": [],
+      "sizes": [],
+      "faces": []
+    },
+    {
+      "id": "bolsas-de-mano-proximamente",
+      "name": "Bolsas de Mano Proximamente",
+      "disabled": true,
+      "colors": [],
+      "sizes": [],
+      "faces": []
+    }
+  ]
+}

@@ -18,110 +18,95 @@
 
 <body>
 
-<div class="designer">
-
-    <!-- PANEL IZQUIERDO -->
-
-    <aside class="left-panel">
-
+<div class="layout">
+    <aside class="panel panel-left">
         <h2>Producto</h2>
 
         <div class="section">
-
-            <label>Modelo</label>
-
+            <label class="panel-label">Modelo</label>
             <select id="product">
-
                 <option>Camiseta personalizada</option>
-
             </select>
+        </div>
 
+        <div id="productColorSection" class="section">
+            <label class="panel-label">Color</label>
+            <div id="productColors" class="inline-actions">
+            </div>
         </div>
 
         <div class="section">
-
-            <label>Color</label>
-
-            <button id="whiteBtn">Blanco</button>
-            <button id="blackBtn">Negro</button>
-
-        </div>
-
-        <div class="section">
-
-            <label>Talla</label>
-
+            <label class="panel-label">Talla</label>
             <select id="size">
-
                 <option>S</option>
                 <option>M</option>
                 <option selected>L</option>
                 <option>XL</option>
                 <option>XXL</option>
-
             </select>
-
         </div>
-
     </aside>
 
-    <!-- CENTRO -->
-
     <main class="workspace">
+        <header class="workspace-toolbar">
+            <button id="undoBtn" class="btn btn-secondary" disabled>Deshacer</button>
+            <button id="redoBtn" class="btn btn-secondary" disabled>Rehacer</button>
+            <button id="resetZoomBtn" class="btn btn-secondary" type="button">Reset zoom</button>
+            <button id="duplicateBtn" class="btn btn-secondary" disabled>Duplicar</button>
+            <button id="bringFrontBtn" class="btn btn-secondary" disabled>Traer delante</button>
+            <button id="sendBackBtn" class="btn btn-secondary" disabled>Enviar detras</button>
+            <button id="lockBtn" class="btn btn-secondary" disabled>Bloquear</button>
+            <button id="centerHBtn" class="btn btn-secondary" disabled>Centrar H</button>
+            <button id="centerVBtn" class="btn btn-secondary" disabled>Centrar V</button>
+            <button id="deleteBtn" class="btn btn-danger" disabled>Eliminar</button>
+        </header>
 
         <div id="canvas"></div>
 
+        <footer class="workspace-footer">
+            <div id="faceViews" class="face-actions"></div>
+            <button id="addCart" class="btn btn-accent">Añadir al carrito</button>
+        </footer>
     </main>
 
-    <!-- PANEL DERECHO -->
+    <aside class="panel panel-right">
+        <h2 id="toolsTitle">Herramientas</h2>
 
-    <aside class="right-panel">
-
-        <h2>Herramientas</h2>
-
-        <button id="addImage">
-            Añadir imagen
-        </button>
-
-        <button id="addText">
-            Añadir texto
-        </button>
+        <button id="addImage" class="btn btn-accent">Añadir imagen</button>
+        <button id="addText" class="btn">Añadir texto</button>
 
         <hr>
 
-        <div id="properties">
-
-            <p>
-                Selecciona un objeto
-            </p>
-
+        <div id="calibrationSection" class="section calibration-section" hidden>
+            <label class="panel-label">Calibracion</label>
+            <button id="toggleCalibration" class="btn btn-secondary" type="button">Ajustar zona de impresion</button>
+            <div id="calibrationPanel" class="calibration-panel" hidden>
+                <p id="calibrationContext" class="hint">Ajustando zona de impresion</p>
+                <div class="calibration-grid">
+                    <label>X</label>
+                    <input id="printAreaX" type="number" readonly>
+                    <label>Y</label>
+                    <input id="printAreaY" type="number" readonly>
+                    <label>Width</label>
+                    <input id="printAreaWidth" type="number" readonly>
+                    <label>Height</label>
+                    <input id="printAreaHeight" type="number" readonly>
+                </div>
+                <label class="panel-label">Producto JSON</label>
+                <textarea id="printAreaSnippet" rows="8" readonly></textarea>
+                <button id="copyPrintAreaSnippet" class="btn" type="button">Copiar producto actual</button>
+                <button id="saveProductsJson" class="btn btn-accent" type="button">Guardar products.json</button>
+                <button id="downloadProductsJson" class="btn btn-secondary" type="button">Descargar products.json</button>
+            </div>
         </div>
 
+        <div id="properties">
+            <p class="empty">Selecciona un objeto</p>
+        </div>
+
+        <button id="adminAccessBtn" class="btn btn-secondary btn-ghost" type="button">Acceso técnico</button>
     </aside>
-
 </div>
-
-<footer>
-
-    <button id="frontView">
-
-        Frontal
-
-    </button>
-
-    <button id="backView">
-
-        Espalda
-
-    </button>
-
-    <button id="addCart">
-
-        Añadir al carrito
-
-    </button>
-
-</footer>
 
 <input
         type="file"
@@ -129,12 +114,21 @@
         accept="image/*"
         hidden>
 
-<script src="js/config.js"></script>
-<script src="js/canvas.js"></script>
-<script src="js/imageManager.js"></script>
-<script src="js/textManager.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/app.js"></script>
+<script type="module" src="js/main.js"></script>
+
+<div id="adminModal" class="admin-modal" hidden>
+    <div class="admin-modal-backdrop"></div>
+    <div class="admin-modal-card" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+        <h3 id="adminModalTitle">Acceso técnico</h3>
+        <p class="hint">Introduce la contraseña para mostrar la calibracion.</p>
+        <input id="adminPasswordInput" type="password" placeholder="Contraseña">
+        <p id="adminModalError" class="admin-error" hidden>Contraseña incorrecta</p>
+        <div class="admin-modal-actions">
+            <button id="adminCancelBtn" class="btn btn-secondary" type="button">Cancelar</button>
+            <button id="adminSubmitBtn" class="btn btn-accent" type="button">Entrar</button>
+        </div>
+    </div>
+</div>
 
 </body>
 
