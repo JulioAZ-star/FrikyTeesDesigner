@@ -382,7 +382,11 @@ export class CanvasManager {
     }
 
     node.x(node.x() + offsetX);
-    this.clampNodeToPrintArea(node);
+
+    if (node.className !== "Image" && node.className !== "Text") {
+      this.clampNodeToPrintArea(node);
+    }
+
     this.draw();
   }
 
@@ -412,7 +416,11 @@ export class CanvasManager {
     }
 
     node.y(node.y() + offsetY);
-    this.clampNodeToPrintArea(node);
+
+    if (node.className !== "Image" && node.className !== "Text") {
+      this.clampNodeToPrintArea(node);
+    }
+
     this.draw();
   }
 
@@ -449,7 +457,9 @@ export class CanvasManager {
     node.x(node.x() + (printAreaCenterX - nodeCenterX));
     node.y(node.y() + (printAreaCenterY - nodeCenterY));
 
-    this.clampNodeToPrintArea(node);
+    if (node.className !== "Image" && node.className !== "Text") {
+      this.clampNodeToPrintArea(node);
+    }
   }
 
   setProductColor(color) {

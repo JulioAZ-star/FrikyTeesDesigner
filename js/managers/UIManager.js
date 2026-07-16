@@ -399,7 +399,6 @@ export class UIManager {
       const fontStyle = typeof node.fontStyle === "function" ? node.fontStyle() : "normal";
       const isBold = fontStyle.includes("bold");
       const isItalic = fontStyle.includes("italic");
-      const objectAlign = this.#resolveHorizontalAlignment(node);
       const size = this.#getNodeVisualSize(node);
 
       this.elements.properties.innerHTML = `
@@ -452,13 +451,6 @@ export class UIManager {
               <input data-property="rotation" type="number" step="1" value="${Math.round(node.rotation())}" />
             </div>
           </div>
-
-          <label class="prop-label">Alineacion objeto</label>
-          <div class="prop-button-row">
-            <button class="btn btn-mini ${objectAlign === "left" ? "active" : ""}" data-property="hAlign" data-value="left" type="button">Izquierda</button>
-            <button class="btn btn-mini ${objectAlign === "center" ? "active" : ""}" data-property="hAlign" data-value="center" type="button">Centro</button>
-            <button class="btn btn-mini ${objectAlign === "right" ? "active" : ""}" data-property="hAlign" data-value="right" type="button">Derecha</button>
-          </div>
         </div>
       `;
       return;
@@ -467,7 +459,6 @@ export class UIManager {
     const rotation = typeof node.rotation === "function" ? node.rotation() : 0;
     const scaleX = typeof node.scaleX === "function" ? node.scaleX() : 1;
     const scaleY = typeof node.scaleY === "function" ? node.scaleY() : 1;
-    const objectAlign = this.#resolveHorizontalAlignment(node);
     const size = this.#getNodeVisualSize(node);
 
     this.elements.properties.innerHTML = `
@@ -499,13 +490,6 @@ export class UIManager {
         <div class="prop-button-row">
           <button class="btn btn-mini ${scaleX < 0 ? "active" : ""}" data-property="flipX" data-value="toggle" type="button">Horizontal</button>
           <button class="btn btn-mini ${scaleY < 0 ? "active" : ""}" data-property="flipY" data-value="toggle" type="button">Vertical</button>
-        </div>
-
-        <label class="prop-label">Alineacion objeto</label>
-        <div class="prop-button-row">
-          <button class="btn btn-mini ${objectAlign === "left" ? "active" : ""}" data-property="hAlign" data-value="left" type="button">Izquierda</button>
-          <button class="btn btn-mini ${objectAlign === "center" ? "active" : ""}" data-property="hAlign" data-value="center" type="button">Centro</button>
-          <button class="btn btn-mini ${objectAlign === "right" ? "active" : ""}" data-property="hAlign" data-value="right" type="button">Derecha</button>
         </div>
       </div>
     `;
@@ -585,34 +569,6 @@ export class UIManager {
       style: "currency",
       currency: "EUR"
     }).format(Number(value || 0));
-  }
-
-  #resolveHorizontalAlignment(node) {
-    const layer = node.getLayer?.();
-    const box = node.getClientRect({
-      skipStroke: true,
-      skipShadow: true,
-      relativeTo: layer ?? undefined
-    });
-    const clip = typeof layer?.clip === "function" ? layer.clip() : null;
-    const leftEdge = clip?.x ?? Config.printArea.x;
-    const rightEdge = (clip?.x ?? Config.printArea.x) + (clip?.width ?? Config.printArea.width);
-    const centerEdge = leftEdge + (clip?.width ?? Config.printArea.width) / 2;
-    const tolerance = 1;
-
-    if (Math.abs(box.x - leftEdge) <= tolerance) {
-      return "left";
-    }
-
-    if (Math.abs(box.x + box.width - rightEdge) <= tolerance) {
-      return "right";
-    }
-
-    if (Math.abs(box.x + box.width / 2 - centerEdge) <= tolerance) {
-      return "center";
-    }
-
-    return "";
   }
 
   #getNodeVisualSize(node) {
