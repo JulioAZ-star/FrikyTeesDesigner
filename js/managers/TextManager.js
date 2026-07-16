@@ -161,7 +161,11 @@ export class TextManager {
     const minFontSize = 8;
     const printArea = this.canvasManager.getPrintAreaBounds();
     const fitsBounds = () => {
-      const box = node.getClientRect({ skipStroke: true, skipShadow: true });
+      const box = node.getClientRect({
+        skipStroke: true,
+        skipShadow: true,
+        relativeTo: node.getLayer?.() ?? undefined
+      });
 
       return box.width <= printArea.width && box.height <= printArea.height;
     };

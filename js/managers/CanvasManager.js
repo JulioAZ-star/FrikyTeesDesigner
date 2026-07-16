@@ -48,6 +48,10 @@ export class CanvasManager {
     this.#buildProductBase();
     this.#buildPrintAreaCalibrationTools();
     this.#bindWheelZoom();
+    this.applyDefaultViewport();
+    requestAnimationFrame(() => {
+      this.applyDefaultViewport();
+    });
     this.draw();
   }
 
@@ -315,7 +319,7 @@ export class CanvasManager {
     const offsetY = nextPosition.y - current.y;
 
     const bounds = this.getPrintAreaBounds();
-    const currentBox = node.getClientRect({ skipStroke: true, skipShadow: true });
+    const currentBox = this.#getNodeBoxInDesignSpace(node);
     const nextBox = {
       x: currentBox.x + offsetX,
       y: currentBox.y + offsetY,
@@ -358,7 +362,7 @@ export class CanvasManager {
     }
 
     const bounds = this.getPrintAreaBounds();
-    const box = node.getClientRect({ skipStroke: true, skipShadow: true });
+    const box = this.#getNodeBoxInDesignSpace(node);
     let offsetX = 0;
 
     if (alignment === "left") {
@@ -388,7 +392,7 @@ export class CanvasManager {
     }
 
     const bounds = this.getPrintAreaBounds();
-    const box = node.getClientRect({ skipStroke: true, skipShadow: true });
+    const box = this.#getNodeBoxInDesignSpace(node);
     let offsetY = 0;
 
     if (alignment === "top") {
@@ -436,7 +440,7 @@ export class CanvasManager {
     }
 
     const bounds = this.getPrintAreaBounds();
-    const box = node.getClientRect({ skipStroke: true, skipShadow: true });
+    const box = this.#getNodeBoxInDesignSpace(node);
     const printAreaCenterX = bounds.x + bounds.width / 2;
     const printAreaCenterY = bounds.y + bounds.height / 2;
     const nodeCenterX = box.x + box.width / 2;
@@ -472,6 +476,11 @@ export class CanvasManager {
     this.stage.scale({ x: 1, y: 1 });
     this.stage.position({ x: 0, y: 0 });
     this.stage.batchDraw();
+  }
+
+  applyDefaultViewport() {
+    this.setPanEnabled(false);
+    this.resetViewport();
   }
 
   getStage() {
@@ -751,6 +760,14 @@ export class CanvasManager {
       image.onload = () => resolve(image);
       image.onerror = () => reject(new Error(`Unable to load mockup: ${source}`));
       image.src = source;
+    });
+  }
+
+  #getNodeBoxInDesignSpace(node) {
+    return node.getClientRect({
+      skipStroke: true,
+      skipShadow: true,
+      relativeTo: this.designLayer
     });
   }
 }

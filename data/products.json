@@ -14,6 +14,11 @@
         }
       ],
       "sizes": [
+        "5-6",
+        "7-8",
+        "9-10",
+        "11-12",
+        "XS",
         "S",
         "M",
         "L",
@@ -104,7 +109,21 @@
       ],
       "defaultFace": "front",
       "defaultColor": "#ffffff",
-      "defaultSize": "L"
+      "defaultSize": "L",
+      "pricing": {
+        "singleSide": 16.95,
+        "doubleSide": 19.95,
+        "children": {
+          "sizes": [
+            "5-6",
+            "7-8",
+            "9-10",
+            "11-12"
+          ],
+          "singleSide": 13.95,
+          "doubleSide": 16.95
+        }
+      }
     },
     {
       "id": "sudadera-urbana",

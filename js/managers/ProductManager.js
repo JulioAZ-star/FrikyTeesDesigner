@@ -145,6 +145,14 @@ export class ProductManager {
     return this.#cloneNodes(this.#getFaceDesign(this.currentProductId, this.currentFaceId));
   }
 
+  getCurrentProductFaceDesign(faceId) {
+    if (!this.currentProductId || !faceId) {
+      return [];
+    }
+
+    return this.#cloneNodes(this.#getFaceDesign(this.currentProductId, faceId));
+  }
+
   getSurfaceState() {
     const product = this.getCurrentProduct();
     const face = this.getCurrentFace();
@@ -206,6 +214,17 @@ export class ProductManager {
       mockup: product.mockup,
       printArea: product.printArea,
       faces,
+      pricing: {
+        singleSide: Number(product.pricing?.singleSide ?? 0),
+        doubleSide: Number(product.pricing?.doubleSide ?? 0),
+        children: {
+          sizes: Array.isArray(product.pricing?.children?.sizes)
+            ? [...product.pricing.children.sizes]
+            : [],
+          singleSide: Number(product.pricing?.children?.singleSide ?? 0),
+          doubleSide: Number(product.pricing?.children?.doubleSide ?? 0)
+        }
+      },
       defaultFace: product.defaultFace ?? faces[0]?.id ?? null,
       defaultColor: product.defaultColor ?? product.colors?.[0]?.value ?? null,
       defaultSize: product.defaultSize ?? product.sizes?.[0] ?? null

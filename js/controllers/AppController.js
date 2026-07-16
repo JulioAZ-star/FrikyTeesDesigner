@@ -6,6 +6,7 @@ import { TextManager } from "../managers/TextManager.js";
 import { ImageManager } from "../managers/ImageManager.js";
 import { HistoryManager } from "../managers/HistoryManager.js";
 import { ProductManager } from "../managers/ProductManager.js";
+import { PricingManager } from "../managers/PricingManager.js";
 import { UIManager } from "../managers/UIManager.js";
 import { Config } from "../config/Config.js";
 
@@ -25,6 +26,7 @@ export class AppController {
     this.textManager = new TextManager(this.canvasManager, this.selectionManager);
     this.imageManager = new ImageManager(this.canvasManager, this.selectionManager);
     this.productManager = new ProductManager(productCatalog);
+    this.pricingManager = new PricingManager();
     this.uiManager = new UIManager(this.eventBus);
 
     this.historyManager = new HistoryManager({
@@ -77,6 +79,10 @@ export class AppController {
     });
 
     await this.#loadCurrentSurface({ resetHistory: false });
+    this.canvasManager.applyDefaultViewport();
+    requestAnimationFrame(() => {
+      this.canvasManager.applyDefaultViewport();
+    });
     this.#setClientMode(this.clientMode);
 
     this.#bindKeyboardShortcuts();
@@ -290,11 +296,13 @@ export class AppController {
   async #undo() {
     await this.historyManager.undo();
     this.#syncHistoryUI();
+    this.#syncOrderSummaryUI();
   }
 
   async #redo() {
     await this.historyManager.redo();
     this.#syncHistoryUI();
+    this.#syncOrderSummaryUI();
   }
 
   #bindKeyboardShortcuts() {
@@ -382,6 +390,7 @@ export class AppController {
 
     this.historyManager.capture();
     this.#syncHistoryUI();
+    this.#syncOrderSummaryUI();
   }
 
   #buildSnapshot() {
@@ -425,10 +434,12 @@ export class AppController {
       sizes: surface.product.sizes,
       currentSize: surface.size,
       faces: surface.product.faces,
-      currentFaceId: surface.face.id
+      currentFaceId: surface.face.id,
+      customizedFaces: this.#buildFaceCustomizationStatus(surface)
     });
 
     this.uiManager.setView(surface.face.id);
+    this.#syncOrderSummaryUI();
     this.#syncCalibrationUI();
   }
 
@@ -699,12 +710,19 @@ export class AppController {
       return;
     }
 
+    const pricing = this.#getPricingState();
+
+    if (pricing.total <= 0) {
+      return;
+    }
+
     const payload = {
       productId: surface.product.id,
       faceId: surface.face.id,
       color: surface.color,
       size: surface.size,
       design: NodeSerializer.serializeMany(this.canvasManager.getDesignNodes()),
+      pricing,
       createdAt: new Date().toISOString()
     };
 
@@ -901,6 +919,79 @@ export class AppController {
     this.uiManager.setHistoryState({
       canUndo: this.historyManager.canUndo(),
       canRedo: this.historyManager.canRedo()
+    });
+  }
+
+  #buildFaceCustomizationStatus(surface = this.productManager.getSurfaceState()) {
+    if (!surface?.product?.faces?.length) {
+      return {};
+    }
+
+    const status = {};
+
+    for (const face of surface.product.faces) {
+      if (face.id === surface.face.id) {
+        status[face.id] = this.canvasManager.getDesignNodes().length > 0;
+        continue;
+      }
+
+      status[face.id] = this.productManager.getCurrentProductFaceDesign(face.id).length > 0;
+    }
+
+    return status;
+  }
+
+  #getPricingState(surface = this.productManager.getSurfaceState()) {
+    const status = this.#buildFaceCustomizationStatus(surface);
+
+    return this.pricingManager.calculateOrder({
+      product: surface?.product,
+      size: surface?.size,
+      faceStatus: {
+        front: Boolean(status.front),
+        back: Boolean(status.back)
+      }
+    });
+  }
+
+  #syncOrderSummaryUI(surface = this.productManager.getSurfaceState()) {
+    if (!surface) {
+      return;
+    }
+
+    const pricing = this.#getPricingState(surface);
+    const faceStatus = this.#buildFaceCustomizationStatus(surface);
+    const colorName = surface.product.colors.find((item) => item.value === surface.color)?.name ?? "-";
+    const hasPricingConfig = pricing.singleSide > 0 || pricing.doubleSide > 0;
+    const supportsOrderSummary = surface.product.id === "camiseta-personalizada" && hasPricingConfig;
+
+    this.uiManager.setFaceCustomizationState(faceStatus);
+
+    if (!supportsOrderSummary) {
+      this.uiManager.renderOrderSummaryUnavailable({
+        productName: surface.product.name
+      });
+      this.uiManager.setAddToCartState({
+        total: 0,
+        enabled: false,
+        unavailable: true
+      });
+      return;
+    }
+
+    this.uiManager.renderOrderSummary({
+      productName: surface.product.name,
+      colorName,
+      size: surface.size ?? "-",
+      frontCustomized: Boolean(faceStatus.front),
+      backCustomized: Boolean(faceStatus.back),
+      total: pricing.total,
+      pricingTierLabel: pricing.isChildrenSize ? "Tarifa infantil aplicada" : ""
+    });
+
+    this.uiManager.setAddToCartState({
+      total: pricing.total,
+      enabled: pricing.total > 0
     });
   }
 }

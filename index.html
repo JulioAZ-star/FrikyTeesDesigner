@@ -70,7 +70,20 @@
     </main>
 
     <aside class="panel panel-right">
-        <h2 id="toolsTitle">Herramientas</h2>
+        <div class="tools-header">
+            <h2 id="toolsTitle">Herramientas</h2>
+            <button
+                id="adminAccessBtn"
+                class="technical-icon-btn"
+                type="button"
+                aria-label="Acceso tecnico"
+                title="Acceso tecnico"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.63-.05.94s.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.2A3.2 3.2 0 1 1 12 8.8a3.2 3.2 0 0 1 0 6.4z"></path>
+                </svg>
+            </button>
+        </div>
 
         <button id="addImage" class="btn btn-accent">Añadir imagen</button>
         <button id="addText" class="btn">Añadir texto</button>
@@ -104,7 +117,8 @@
             <p class="empty">Selecciona un objeto</p>
         </div>
 
-        <button id="adminAccessBtn" class="btn btn-secondary btn-ghost" type="button">Acceso técnico</button>
+        <div id="orderSummary" class="order-summary"></div>
+
     </aside>
 </div>
 

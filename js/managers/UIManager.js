@@ -23,6 +23,7 @@ export class UIManager {
       centerVBtn: document.getElementById("centerVBtn"),
       deleteBtn: document.getElementById("deleteBtn"),
       addCart: document.getElementById("addCart"),
+      orderSummary: document.getElementById("orderSummary"),
       properties: document.getElementById("properties"),
       toolsTitle: document.getElementById("toolsTitle"),
       adminAccessBtn: document.getElementById("adminAccessBtn"),
@@ -313,7 +314,7 @@ export class UIManager {
     this.elements.copyPrintAreaSnippet.disabled = false;
   }
 
-  renderCatalogState({ products, currentProductId, colors, currentColor, sizes, currentSize, faces, currentFaceId }) {
+  renderCatalogState({ products, currentProductId, colors, currentColor, sizes, currentSize, faces, currentFaceId, customizedFaces = {} }) {
     const hasConfigurableColors = colors.length > 0;
 
     this.elements.product.innerHTML = products
@@ -344,9 +345,48 @@ export class UIManager {
           class="btn ${face.id === currentFaceId ? "active" : ""}"
           data-face="${face.id}"
           type="button"
-        >${face.name}</button>
+        >${face.name}<span class="face-status ${customizedFaces[face.id] ? "face-status-on" : "face-status-off"}">${customizedFaces[face.id] ? "✅" : "❌"}</span></button>
       `)
       .join("");
+  }
+
+  renderOrderSummary({ productName, colorName, size, frontCustomized, backCustomized, total, pricingTierLabel = "" }) {
+    const tierRow = pricingTierLabel
+      ? `<div class="summary-badge">${this.#escape(pricingTierLabel)}</div>`
+      : "";
+
+    this.elements.orderSummary.innerHTML = `
+      <div class="summary-title">Resumen del pedido</div>
+      ${tierRow}
+      <div class="summary-row"><span class="summary-label">Producto</span><span>${this.#escape(productName)}</span></div>
+      <div class="summary-row"><span class="summary-label">Color</span><span>${this.#escape(colorName)}</span></div>
+      <div class="summary-row"><span class="summary-label">Talla</span><span>${this.#escape(size)}</span></div>
+      <div class="summary-row"><span class="summary-label">Frontal</span><span>${frontCustomized ? "✅" : "❌"}</span></div>
+      <div class="summary-row"><span class="summary-label">Espalda</span><span>${backCustomized ? "✅" : "❌"}</span></div>
+      <div class="summary-row summary-total"><span class="summary-label">Total</span><span>${this.#formatPrice(total)}</span></div>
+    `;
+
+    this.elements.orderSummary.hidden = false;
+  }
+
+  renderOrderSummaryUnavailable({ productName }) {
+    this.elements.orderSummary.innerHTML = `
+      <div class="summary-title">Resumen del pedido</div>
+      <div class="summary-unavailable">${this.#escape(productName)} no esta disponible para pedido en esta version.</div>
+    `;
+
+    this.elements.orderSummary.hidden = false;
+  }
+
+  setOrderSummaryVisibility(visible) {
+    this.elements.orderSummary.hidden = !visible;
+  }
+
+  setAddToCartState({ total, enabled, unavailable = false }) {
+    this.elements.addCart.textContent = unavailable
+      ? "Añadir al carrito · No disponible"
+      : `Añadir al carrito · ${this.#formatPrice(total)}`;
+    this.elements.addCart.disabled = !enabled;
   }
 
   renderProperties(node) {
@@ -477,6 +517,22 @@ export class UIManager {
     }
   }
 
+  setFaceCustomizationState(customizedFaces = {}) {
+    for (const button of this.elements.faceViews.querySelectorAll("button[data-face]")) {
+      const faceId = button.dataset.face;
+      const customized = Boolean(customizedFaces[faceId]);
+      const indicator = button.querySelector(".face-status");
+
+      if (!indicator) {
+        continue;
+      }
+
+      indicator.textContent = customized ? "✅" : "❌";
+      indicator.classList.toggle("face-status-on", customized);
+      indicator.classList.toggle("face-status-off", !customized);
+    }
+  }
+
   setHistoryState({ canUndo, canRedo }) {
     this.elements.undoBtn.disabled = !canUndo;
     this.elements.redoBtn.disabled = !canRedo;
@@ -524,9 +580,20 @@ export class UIManager {
     return target.value;
   }
 
+  #formatPrice(value) {
+    return new Intl.NumberFormat("es-ES", {
+      style: "currency",
+      currency: "EUR"
+    }).format(Number(value || 0));
+  }
+
   #resolveHorizontalAlignment(node) {
-    const box = node.getClientRect({ skipStroke: true, skipShadow: true });
     const layer = node.getLayer?.();
+    const box = node.getClientRect({
+      skipStroke: true,
+      skipShadow: true,
+      relativeTo: layer ?? undefined
+    });
     const clip = typeof layer?.clip === "function" ? layer.clip() : null;
     const leftEdge = clip?.x ?? Config.printArea.x;
     const rightEdge = (clip?.x ?? Config.printArea.x) + (clip?.width ?? Config.printArea.width);
@@ -549,8 +616,15 @@ export class UIManager {
   }
 
   #getNodeVisualSize(node) {
-    const width = Math.max(1, Math.abs(node.width() * node.scaleX()));
-    const height = Math.max(1, Math.abs(node.height() * node.scaleY()));
+    const layer = node.getLayer?.();
+    const box = node.getClientRect({
+      skipStroke: true,
+      skipShadow: true,
+      relativeTo: layer ?? undefined
+    });
+
+    const width = Math.max(1, box.width);
+    const height = Math.max(1, box.height);
 
     return { width, height };
   }
