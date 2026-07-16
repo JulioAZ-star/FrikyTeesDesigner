@@ -32,7 +32,7 @@ export class SelectionManager {
           return oldBox;
         }
 
-        if (selected?.className === "Image") {
+        if (selected?.className === "Image" || selected?.className === "Text") {
           return newBox;
         }
 
@@ -75,7 +75,7 @@ export class SelectionManager {
 
     this.transformer.on("dragmove", () => {
       if (this.activeDragNode) {
-        if (this.activeDragNode.className !== "Image") {
+        if (this.activeDragNode.className !== "Image" && this.activeDragNode.className !== "Text") {
           this.canvasManager.clampNodeToPrintArea(this.activeDragNode);
         }
         this.canvasManager.draw();
@@ -104,7 +104,7 @@ export class SelectionManager {
     });
 
     node.on("dragmove", () => {
-      if (node.className !== "Image") {
+      if (node.className !== "Image" && node.className !== "Text") {
         this.canvasManager.clampNodeToPrintArea(node);
       }
       this.canvasManager.draw();

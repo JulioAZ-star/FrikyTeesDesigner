@@ -827,7 +827,7 @@ export class AppController {
     if (property === "x" && !Number.isNaN(nextValue)) {
       node.x(nextValue);
 
-      if (node.className !== "Image") {
+      if (node.className !== "Image" && node.className !== "Text") {
         this.canvasManager.clampNodeToPrintArea(node);
       }
 
@@ -837,7 +837,7 @@ export class AppController {
     if (property === "y" && !Number.isNaN(nextValue)) {
       node.y(nextValue);
 
-      if (node.className !== "Image") {
+      if (node.className !== "Image" && node.className !== "Text") {
         this.canvasManager.clampNodeToPrintArea(node);
       }
 
@@ -847,7 +847,7 @@ export class AppController {
     if (property === "rotation" && !Number.isNaN(nextValue)) {
       node.rotation(nextValue);
 
-      if (node.className !== "Image") {
+      if (node.className !== "Image" && node.className !== "Text") {
         this.canvasManager.clampNodeToPrintArea(node);
       }
 
@@ -882,7 +882,7 @@ export class AppController {
       node.scaleY((value / base) * sign);
     }
 
-    if (node.className !== "Image") {
+    if (node.className !== "Image" && node.className !== "Text") {
       this.canvasManager.clampNodeToPrintArea(node);
     }
   }

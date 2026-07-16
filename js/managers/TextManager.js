@@ -32,11 +32,11 @@ export class TextManager {
 
       textNode.text(updatedValue.trim() || Config.text.value);
       this.#fitTextToPrintArea(textNode);
-      this.canvasManager.clampNodeToPrintArea(textNode);
       this.canvasManager.draw();
     });
 
     this.canvasManager.addNode(textNode);
+    this.#fitTextToPrintArea(textNode);
     this.canvasManager.centerNodeInPrintArea(textNode);
     this.selectionManager.attachNode(textNode);
     this.selectionManager.select(textNode);
@@ -90,7 +90,6 @@ export class TextManager {
     }
 
     this.#fitTextToPrintArea(node);
-    this.canvasManager.clampNodeToPrintArea(node);
     this.canvasManager.draw();
   }
 
@@ -135,11 +134,8 @@ export class TextManager {
         node.scaleY(1);
       }
 
-      this.canvasManager.clampNodeToPrintArea(node);
       this.canvasManager.draw();
     };
-
-    node.dragBoundFunc((position) => this.canvasManager.getConstrainedPosition(node, position));
 
     node.on("mouseenter", () => {
       this.canvasManager.getStage().container().style.cursor = Config.interaction.nodeHoverCursor;
@@ -150,7 +146,6 @@ export class TextManager {
     });
 
     node.on("dragend", () => {
-      this.canvasManager.clampNodeToPrintArea(node);
       this.canvasManager.draw();
     });
 
