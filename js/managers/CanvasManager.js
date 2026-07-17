@@ -21,6 +21,19 @@ export class CanvasManager {
     this.zoomMax = 4;
     this.zoomFactor = 1.06;
     this.panEnabled = false;
+    this.sceneWidth = Config.canvas.width;
+    this.sceneHeight = Config.canvas.height;
+    this.viewportFocusPadding = 24;
+    this.viewportFocusBounds = null;
+    this.mockupOpaqueBounds = null;
+    this.responsiveScale = 1;
+    this.viewportScale = 1;
+    this.viewportPosition = { x: 0, y: 0 };
+    this.basePosition = { x: 0, y: 0 };
+    this.resizeObserver = null;
+    this.handleViewportResize = () => {
+      this.#fitStageToContainer();
+    };
     this.printAreaStyle = {
       stroke: Config.printArea.stroke,
       dash: Config.printArea.dash,
@@ -48,6 +61,7 @@ export class CanvasManager {
     this.#buildProductBase();
     this.#buildPrintAreaCalibrationTools();
     this.#bindWheelZoom();
+    this.#bindResponsiveLayout();
     this.applyDefaultViewport();
     requestAnimationFrame(() => {
       this.applyDefaultViewport();
@@ -199,6 +213,7 @@ export class CanvasManager {
     const printArea = face.printArea ?? {};
     const mockupSource = mockup.srcByColor?.[color] ?? mockup.src ?? null;
     const usesMockupImage = Boolean(mockupSource);
+    const shouldRefitViewport = this.#isDefaultViewport();
 
     this.productShape.setAttrs({
       x: mockup.x ?? 120,
@@ -235,6 +250,9 @@ export class CanvasManager {
       strokeWidth: this.printAreaStyle.strokeWidth
     });
 
+    this.mockupOpaqueBounds = null;
+    this.#refreshViewportFocusBounds();
+
     this.#syncDesignLayerClip();
 
     this.#constrainPrintAreaToSurface();
@@ -250,6 +268,12 @@ export class CanvasManager {
     }
 
     this.#notifyPrintAreaChange();
+
+    this.#refreshViewportFocusBounds();
+
+    if (shouldRefitViewport) {
+      this.#fitStageToContainer();
+    }
 
     this.draw();
   }
@@ -477,15 +501,16 @@ export class CanvasManager {
 
     if (!this.panEnabled) {
       this.stage.stopDrag();
+      this.#storeViewportPositionFromStage();
     }
 
     this.stage.batchDraw();
   }
 
   resetViewport() {
-    this.stage.scale({ x: 1, y: 1 });
-    this.stage.position({ x: 0, y: 0 });
-    this.stage.batchDraw();
+    this.viewportScale = 1;
+    this.viewportPosition = { x: 0, y: 0 };
+    this.#fitStageToContainer();
   }
 
   applyDefaultViewport() {
@@ -515,8 +540,15 @@ export class CanvasManager {
       }
     });
 
+    this.stage.on("dragmove", () => {
+      if (this.panEnabled) {
+        this.#storeViewportPositionFromStage();
+      }
+    });
+
     this.stage.on("dragend", () => {
       if (this.panEnabled) {
+        this.#storeViewportPositionFromStage();
         this.stage.container().style.cursor = "grab";
       }
     });
@@ -530,7 +562,7 @@ export class CanvasManager {
         return;
       }
 
-      const oldScale = this.stage.scaleX() || 1;
+      const oldViewportScale = this.viewportScale;
       let direction = event.evt.deltaY > 0 ? -1 : 1;
 
       if (event.evt.ctrlKey) {
@@ -538,28 +570,145 @@ export class CanvasManager {
       }
 
       const nextScaleRaw = direction > 0
-        ? oldScale * this.zoomFactor
-        : oldScale / this.zoomFactor;
+        ? oldViewportScale * this.zoomFactor
+        : oldViewportScale / this.zoomFactor;
 
       const nextScale = Math.min(this.zoomMax, Math.max(this.zoomMin, nextScaleRaw));
 
-      if (Math.abs(nextScale - oldScale) < 0.0001) {
+      if (Math.abs(nextScale - oldViewportScale) < 0.0001) {
         return;
       }
+
+      const oldScale = this.responsiveScale * oldViewportScale;
+      const nextFullScale = this.responsiveScale * nextScale;
 
       const pointTo = {
         x: (pointer.x - this.stage.x()) / oldScale,
         y: (pointer.y - this.stage.y()) / oldScale
       };
 
-      this.stage.scale({ x: nextScale, y: nextScale });
-      this.stage.position({
-        x: pointer.x - pointTo.x * nextScale,
-        y: pointer.y - pointTo.y * nextScale
-      });
+      this.viewportScale = nextScale;
+      this.viewportPosition = {
+        x: pointer.x - pointTo.x * nextFullScale - this.basePosition.x,
+        y: pointer.y - pointTo.y * nextFullScale - this.basePosition.y
+      };
 
-      this.stage.batchDraw();
+      this.#applyStageTransform();
     });
+  }
+
+  #bindResponsiveLayout() {
+    const container = this.stage.container();
+
+    if (typeof ResizeObserver === "function") {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.handleViewportResize();
+      });
+      this.resizeObserver.observe(container);
+    }
+
+    window.addEventListener("resize", this.handleViewportResize, { passive: true });
+    window.addEventListener("orientationchange", this.handleViewportResize, { passive: true });
+  }
+
+  #fitStageToContainer() {
+    if (!this.stage) {
+      return;
+    }
+
+    const container = this.stage.container();
+    const containerWidth = Math.max(1, Math.round(container.clientWidth || this.sceneWidth));
+    const containerHeight = Math.max(1, Math.round(container.clientHeight || this.sceneHeight));
+    const focusBounds = this.#getViewportFocusBounds();
+    const nextResponsiveScale = Math.min(
+      containerWidth / focusBounds.width,
+      containerHeight / focusBounds.height
+    );
+
+    this.responsiveScale = Number.isFinite(nextResponsiveScale) && nextResponsiveScale > 0
+      ? nextResponsiveScale
+      : 1;
+
+    this.basePosition = {
+      x: Math.round(containerWidth / 2 - (focusBounds.x + focusBounds.width / 2) * this.responsiveScale),
+      y: Math.round(containerHeight / 2 - (focusBounds.y + focusBounds.height / 2) * this.responsiveScale)
+    };
+
+    this.stage.size({
+      width: containerWidth,
+      height: containerHeight
+    });
+
+    this.#applyStageTransform();
+  }
+
+  #applyStageTransform() {
+    const scale = this.responsiveScale * this.viewportScale;
+
+    this.stage.scale({ x: scale, y: scale });
+    this.stage.position({
+      x: this.basePosition.x + this.viewportPosition.x,
+      y: this.basePosition.y + this.viewportPosition.y
+    });
+    this.stage.batchDraw();
+  }
+
+  #storeViewportPositionFromStage() {
+    this.viewportPosition = {
+      x: this.stage.x() - this.basePosition.x,
+      y: this.stage.y() - this.basePosition.y
+    };
+  }
+
+  #isDefaultViewport() {
+    return this.viewportScale === 1 &&
+      Math.abs(this.viewportPosition.x) < 0.5 &&
+      Math.abs(this.viewportPosition.y) < 0.5;
+  }
+
+  #refreshViewportFocusBounds() {
+    this.viewportFocusBounds = this.#getMockupVisibleBounds() ?? this.#getSurfaceBounds();
+  }
+
+  #getViewportFocusBounds() {
+    const bounds = this.viewportFocusBounds ?? this.#getSurfaceBounds();
+    const padding = this.viewportFocusPadding;
+
+    return {
+      x: bounds.x - padding,
+      y: bounds.y - padding,
+      width: bounds.width + padding * 2,
+      height: bounds.height + padding * 2
+    };
+  }
+
+  #getMockupVisibleBounds() {
+    const image = this.mockupImage.image();
+
+    if (!image) {
+      return null;
+    }
+
+    const sourceWidth = image.naturalWidth || image.width;
+    const sourceHeight = image.naturalHeight || image.height;
+
+    if (!sourceWidth || !sourceHeight) {
+      return null;
+    }
+
+    const opaqueBounds = this.mockupOpaqueBounds ?? {
+      x: 0,
+      y: 0,
+      width: sourceWidth,
+      height: sourceHeight
+    };
+
+    return {
+      x: this.mockupImage.x() + (opaqueBounds.x / sourceWidth) * this.mockupImage.width(),
+      y: this.mockupImage.y() + (opaqueBounds.y / sourceHeight) * this.mockupImage.height(),
+      width: (opaqueBounds.width / sourceWidth) * this.mockupImage.width(),
+      height: (opaqueBounds.height / sourceHeight) * this.mockupImage.height()
+    };
   }
 
   #syncDetailOverlay({ product, face, mockup }) {
@@ -739,6 +888,7 @@ export class CanvasManager {
     if (!mockup.src) {
       this.mockupImage.image(null);
       this.mockupImage.visible(false);
+      this.mockupOpaqueBounds = null;
       return;
     }
 
@@ -751,6 +901,7 @@ export class CanvasManager {
         return;
       }
 
+      this.mockupOpaqueBounds = this.#measureOpaqueBounds(image);
       this.mockupImage.image(image);
       this.mockupImage.visible(true);
     } catch {
@@ -758,9 +909,75 @@ export class CanvasManager {
         return;
       }
 
+      this.mockupOpaqueBounds = null;
       this.mockupImage.image(null);
       this.mockupImage.visible(false);
     }
+  }
+
+  #measureOpaqueBounds(image) {
+    const width = image.naturalWidth || image.width;
+    const height = image.naturalHeight || image.height;
+
+    if (!width || !height) {
+      return null;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+
+    if (!context) {
+      return null;
+    }
+
+    context.drawImage(image, 0, 0, width, height);
+
+    const pixels = context.getImageData(0, 0, width, height).data;
+    const alphaThreshold = 8;
+    let minX = width;
+    let minY = height;
+    let maxX = -1;
+    let maxY = -1;
+
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const alpha = pixels[(y * width + x) * 4 + 3];
+
+        if (alpha <= alphaThreshold) {
+          continue;
+        }
+
+        if (x < minX) {
+          minX = x;
+        }
+
+        if (y < minY) {
+          minY = y;
+        }
+
+        if (x > maxX) {
+          maxX = x;
+        }
+
+        if (y > maxY) {
+          maxY = y;
+        }
+      }
+    }
+
+    if (maxX < minX || maxY < minY) {
+      return null;
+    }
+
+    return {
+      x: minX,
+      y: minY,
+      width: maxX - minX + 1,
+      height: maxY - minY + 1
+    };
   }
 
   #loadImage(source) {
