@@ -4,4 +4,8 @@ import productCatalog from "../data/products.json" with { type: "json" };
 document.addEventListener("DOMContentLoaded", async () => {
   const app = new AppController(productCatalog);
   await app.init();
+
+  window.parent?.postMessage({
+    type: "frikytees:ready"
+  }, "*");
 });
