@@ -936,7 +936,9 @@ export class CanvasManager {
     context.drawImage(image, 0, 0, width, height);
 
     const pixels = context.getImageData(0, 0, width, height).data;
+    const background = this.#sampleImageBackground(pixels, width, height);
     const alphaThreshold = 8;
+    const colorThreshold = 32;
     let minX = width;
     let minY = height;
     let maxX = -1;
@@ -944,9 +946,17 @@ export class CanvasManager {
 
     for (let y = 0; y < height; y += 1) {
       for (let x = 0; x < width; x += 1) {
-        const alpha = pixels[(y * width + x) * 4 + 3];
+        const index = (y * width + x) * 4;
+        const red = pixels[index];
+        const green = pixels[index + 1];
+        const blue = pixels[index + 2];
+        const alpha = pixels[index + 3];
+        const colorDistance = Math.abs(red - background.red) +
+          Math.abs(green - background.green) +
+          Math.abs(blue - background.blue);
+        const alphaDistance = Math.abs(alpha - background.alpha);
 
-        if (alpha <= alphaThreshold) {
+        if (alpha <= alphaThreshold || (colorDistance <= colorThreshold && alphaDistance <= alphaThreshold)) {
           continue;
         }
 
@@ -977,6 +987,41 @@ export class CanvasManager {
       y: minY,
       width: maxX - minX + 1,
       height: maxY - minY + 1
+    };
+  }
+
+  #sampleImageBackground(pixels, width, height) {
+    const samplePoints = [
+      [0, 0],
+      [width - 1, 0],
+      [0, height - 1],
+      [width - 1, height - 1],
+      [Math.floor(width / 2), 0],
+      [Math.floor(width / 2), height - 1]
+    ];
+
+    const totals = {
+      red: 0,
+      green: 0,
+      blue: 0,
+      alpha: 0
+    };
+
+    for (const [x, y] of samplePoints) {
+      const index = (y * width + x) * 4;
+      totals.red += pixels[index];
+      totals.green += pixels[index + 1];
+      totals.blue += pixels[index + 2];
+      totals.alpha += pixels[index + 3];
+    }
+
+    const count = samplePoints.length;
+
+    return {
+      red: Math.round(totals.red / count),
+      green: Math.round(totals.green / count),
+      blue: Math.round(totals.blue / count),
+      alpha: Math.round(totals.alpha / count)
     };
   }
 

@@ -716,10 +716,14 @@ export class AppController {
       return;
     }
 
+    const colorEntry = surface.product.colors.find((c) => c.value === surface.color);
+    const colorName = colorEntry?.name ?? surface.color;
+
     const payload = {
       productId: surface.product.id,
       faceId: surface.face.id,
       color: surface.color,
+      colorName,
       size: surface.size,
       design: NodeSerializer.serializeMany(this.canvasManager.getDesignNodes()),
       pricing,
